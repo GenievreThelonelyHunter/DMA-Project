@@ -1,5 +1,15 @@
+
 library(ggplot2)
 library(tidyverse)
+
+
+rescale_to_1_10 <- function(x) {
+  # Normalize the values to a 0-1 range
+  scaled <- (x /10)
+  # Rescale to a 1-10 range!
+  return(scaled)
+}
+
 
 
 netflix <- read.csv("per il progetto di dma/Netflix.csv")
@@ -16,36 +26,52 @@ amazon_scores <- amazon_prime%>%drop_na()%>%select(title,imdb_score,tmdb_score,t
 
 
 hbo_scores <- hbo%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_popularity)
-disney_scores <- disne%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_popularity)
+disney_scores <- disney%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_popularity)
 games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Count)
 
-games_scores
-
-rescale_to_1_10 <- function(x) {
-  # Normalize the values to a 0-1 range
-  normalized <- (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-  # Rescale to a 1-10 range
-  scaled <- normalized * 9 + 1
-  return(scaled)
-}
 
 games_scores <- games_scores %>% mutate (Critic_Score = rescale_to_1_10(Critic_Score))
-games_scores
 
-ggplot(data = scores, mapping = aes(x=tmdb_score)) +
+
+
+ggplot(data = netflix_scores, mapping = aes(x=tmdb_score)) +
   geom_histogram()
 
 
-ggplot(data = scores, mapping = aes(x=imdb_score)) +
+ggplot(data = netflix_scores, mapping = aes(x=imdb_score)) +
+geom_histogram() +
+labs(x="netflix imdb score")
+
+#
+ggplot(data = hbo_scores, mapping = aes(x=tmdb_score)) +
+  geom_histogram()+
+  labs(x="netflix tmdb score")
+
+ggplot(data = hbo_scores, mapping = aes(x=imdb_score)) +
 geom_histogram()
 
-
-ggsave("scatterplot.png", width = 9, height = 7, dpi = 1000)
-ggplot(data = scores, mapping = aes(x=tmdb_score)) +
+#
+ggplot(data = amazon_scores, mapping = aes(x=tmdb_score)) +
   geom_histogram()
 
-ggplot(data = scores, mapping = aes(x=imdb_score,y =tmdb_score)) +
-geom_point()
+
+ggplot(data = amazon_scores, mapping = aes(x=imdb_score)) +
+geom_histogram()
+#
+
+ggplot(data = disney_scores, mapping = aes(x=tmdb_score)) +
+  geom_histogram()
 
 
+ggplot(data = disney_scores, mapping = aes(x=imdb_score)) +
+geom_histogram()
+#
+
+# 
+ggplot(data = games_scores, mapping = aes(as.numeric(as.character(User_Score)))) +
+  geom_histogram()
+
+
+ggplot(data = games_scores, mapping = aes(x=Critic_Score)) +
+geom_histogram()
 
