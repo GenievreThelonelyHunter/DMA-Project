@@ -29,6 +29,7 @@ geom_histogram()
 ggsave("scatterplot.png", width = 9, height = 7, dpi = 1000)
 ggplot(data = scores, mapping = aes(x=tmdb_score)) +
   geom_histogram()
+
 ggplot(data = scores, mapping = aes(x=imdb_score,y =tmdb_score)) +
 geom_point()
 
