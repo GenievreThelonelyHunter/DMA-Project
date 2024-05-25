@@ -2,7 +2,8 @@
 library(ggplot2)
 library(tidyverse)
 library(igraph)
-
+library(ggpubr)
+library(patchwork)
 
 rescale_to_1_10 <- function(x) {
   # Normalize the values to a 0-1 range
@@ -32,6 +33,7 @@ disney_scores <- disney%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_po
 games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Count,Year_of_Release,Publisher) %>% arrange(Year_of_Release) %>% mutate (Critic_Score = rescale_to_1_10(Critic_Score)) %>% mutate(User_Score = as.numeric(as.character(User_Score)))
 
 
+
 ggplot(data = netflix_scores, mapping = aes(x=tmdb_score)) 
 +geom_histogram(color = "red") + labs(x = "Netflix User Score")
 
@@ -39,7 +41,15 @@ ggplot(data = netflix_scores, mapping = aes(x=imdb_score)) +
 geom_histogram(color = "red") +
 labs(x="netflix Critic score")
 
-#
+imdb_netflix <- ggplot(netflix_scores, mapping = aes(x=imdb_score, y=release_year))+ 
+geom_point(fill= "darkred", color = "darkred")
+
+tmdb_netflix <- ggplot(netflix_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "red", color="red") 
+compare_score <- imdb_netflix + tmdb_netflix
+compare_score
+foo <- imdb_netflix + geom_point(netflix_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "red", color="red")
+foo
+
 ggplot(data = hbo_scores, mapping = aes(x=tmdb_score))+
 geom_histogram(color = "purple")
 +labs(x="HBO User score")
@@ -83,9 +93,34 @@ ggplot(games, mapping = aes(x = Publisher, y= User_Count)) +
 geom_point() + geom_smooth(method = "loess") 
 
 
-a <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count))
-a
 
-b<-graph_from_data_frame(a)
-plot(b)
-read_table(b)
+aggregated_data <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
+
+
+
+# Create a graph object
+central_node <- data.frame(Publisher = "User_Count", Total_User_Count = NA)
+
+# Combine with aggregated data
+vertices <- bind_rows(central_node, aggregated_data)
+
+# Create edges connecting publishers to the central node
+edges <- data.frame(from = aggregated_data$Publisher, to = "User_Count", weight = aggregated_data$Total)
+
+# Create a graph object
+g <- graph_from_data_frame(d = edges, vertices = vertices, directed = FALSE)
+
+# Assign edge weights (user counts)
+E(g)$weight <- edges$weight
+# Layout for better visualization
+layout <- layout_with_fr(g)  # Fruchterman-Reingold layout
+
+# Plot the graph
+plot(g, layout = layout,
+     vertex.label = V(g)$name,
+     vertex.label.cex = 0.8,
+     vertex.label.color = "black",
+     vertex.frame.color = NA,
+     vertex.label.family = "sans",
+     edge.arrow.size = 0,
+     main = "Publisher User Counts Weighted Graph")
