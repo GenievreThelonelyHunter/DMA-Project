@@ -4,6 +4,10 @@ library(tidyverse)
 library(igraph)
 library(ggpubr)
 library(patchwork)
+library(plotly)    
+library(ggraph)
+library(tidygraph)
+
 
 rescale_to_1_10 <- function(x) {
   # Normalize the values to a 0-1 range
@@ -94,33 +98,33 @@ geom_point() + geom_smooth(method = "loess")
 
 
 
-aggregated_data <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
+Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
 
+plot_ly(Total_publisher_count, x = Total_publisher_count$Publisher, y = Total_publisher_count$Total)
 
+most_famous <- Total_publisher_count %>% filter(Total > 20000)
+plot_ly(most_famous, x = most_famous$Publisher, y = most_famous$Total)
+graph_list <- list()
+for (instance in unique(games_scores$Publisher)) {
+  # Filter the data for the current Publisher
+  patchworks <- games_scores %>% filter(Publisher == instance)
+  
+  # Create the graph for the current Publisher
+  g <- graph_from_data_frame(d = patchworks, directed = FALSE)
+  tbl_graph <- as_tbl_graph(g)
+  graph <- ggraph(tbl_graph, layout = "fr") +
+    geom_edge_link(aes(width = 1), edge_alpha = 0.5) +
+    geom_node_point(color = "lightblue", size = 5) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    theme_void()
+  
+  # Store the graph object in the list
+  graph_list[[instance]] <- graph
+}
+combined_plots <- wrap_plots(graph_list)
+dev.new(width = 32000, height = 3200)
+combined_plots
+ordered_graph_list <- graph_list[order(most_famous$Publisher)]
+combined_ordered_graph_list <- wrap_plots(ordered_graph_list)
+combined_ordered_graph_list
 
-# Create a graph object
-central_node <- data.frame(Publisher = "User_Count", Total_User_Count = NA)
-
-# Combine with aggregated data
-vertices <- bind_rows(central_node, aggregated_data)
-
-# Create edges connecting publishers to the central node
-edges <- data.frame(from = aggregated_data$Publisher, to = "User_Count", weight = aggregated_data$Total)
-
-# Create a graph object
-g <- graph_from_data_frame(d = edges, vertices = vertices, directed = FALSE)
-
-# Assign edge weights (user counts)
-E(g)$weight <- edges$weight
-# Layout for better visualization
-layout <- layout_with_fr(g)  # Fruchterman-Reingold layout
-
-# Plot the graph
-plot(g, layout = layout,
-     vertex.label = V(g)$name,
-     vertex.label.cex = 0.8,
-     vertex.label.color = "black",
-     vertex.frame.color = NA,
-     vertex.label.family = "sans",
-     edge.arrow.size = 0,
-     main = "Publisher User Counts Weighted Graph")
