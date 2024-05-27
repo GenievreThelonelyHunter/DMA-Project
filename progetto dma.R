@@ -8,7 +8,7 @@ library(plotly)
 library(ggraph)
 library(tidygraph)
 
-
+#functions
 rescale_to_1_10 <- function(x) {
   # Normalize the values to a 0-1 range
   scaled <- (x /10)
@@ -17,7 +17,7 @@ rescale_to_1_10 <- function(x) {
 }
 
 
-
+#variables
 
 netflix <- read.csv("per il progetto di dma/Netflix.csv")
 amazon_prime <- read.csv("per il progetto di dma/Amazon Prime.csv")
@@ -38,6 +38,14 @@ games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Cou
 
 
 
+
+Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
+most_famous <- Total_publisher_count %>% filter(Total > 20000)
+
+graph_list <- list()
+
+#plots
+#Netflix
 ggplot(data = netflix_scores, mapping = aes(x=tmdb_score)) 
 +geom_histogram(color = "red") + labs(x = "Netflix User Score")
 
@@ -45,15 +53,30 @@ ggplot(data = netflix_scores, mapping = aes(x=imdb_score)) +
 geom_histogram(color = "red") +
 labs(x="netflix Critic score")
 
+
+
 imdb_netflix <- ggplot(netflix_scores, mapping = aes(x=imdb_score, y=release_year))+ 
 geom_point(fill= "darkred", color = "darkred")
 
 tmdb_netflix <- ggplot(netflix_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "red", color="red") 
-compare_score <- imdb_netflix + tmdb_netflix
-compare_score
-foo <- imdb_netflix + geom_point(netflix_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "red", color="red")
-foo
+compare_score_netflix <- imdb_netflix + tmdb_netflix
 
+combined_imdb_and_tmbd_netflix <- imdb_netflix + geom_point(netflix_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "red", color="red")
+
+compare_score_netflix
+combined_imdb_and_tmbd_netflix
+
+g <- graph_from_data_frame(d = netflix_scores, directed = FALSE)
+tbl_graph <- as_tbl_graph(g)
+network <- ggraph(tbl_graph, layout = "fr") +
+    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+    geom_node_point(color = "lightblue", size = 5) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    theme_void()
+network  
+
+
+#HBO
 ggplot(data = hbo_scores, mapping = aes(x=tmdb_score))+
 geom_histogram(color = "purple")
 +labs(x="HBO User score")
@@ -61,7 +84,29 @@ geom_histogram(color = "purple")
 ggplot(data = hbo_scores, mapping = aes(x=imdb_score)) +
 geom_histogram(color = "purple") + labs(x = "HBO Critic Score")
 
-#
+
+imdb_hbo <- ggplot(hbo_scores, mapping = aes(x=imdb_score, y=release_year))+ 
+geom_point(fill= "#5c1588", color = "#5c1588")
+
+tmdb_hbo <- ggplot(hbo_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "purple", color="purple") 
+compare_score_hbo <- imdb_hbo + tmdb_hbo
+
+combined_imdb_and_tmbd_hbo <- imdb_hbo + geom_point(hbo_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "purple", color="purple")
+
+compare_score_hbo
+combined_imdb_and_tmbd_hbo
+
+g <- graph_from_data_frame(d = hbo_scores, directed = FALSE)
+tbl_graph <- as_tbl_graph(g)
+network <- ggraph(tbl_graph, layout = "fr") +
+    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+    geom_node_point(color = "lightblue", size = 5) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    theme_void()
+network  
+
+
+#amazon prime video
 ggplot(data = amazon_scores, mapping = aes(x=tmdb_score)) +
   geom_histogram(color = "#1399FF") + 
   labs(x = "Amazon Prime Video User Score")
@@ -70,7 +115,32 @@ ggplot(data = amazon_scores, mapping = aes(x=tmdb_score)) +
 ggplot(data = amazon_scores, mapping = aes(x=imdb_score)) +
 geom_histogram(color = "#1399FF") +
 labs(x = "Amazon Prime Video Critic Score")
-#
+
+
+
+imdb_amazon <- ggplot(amazon_scores, mapping = aes(x=imdb_score, y=release_year))+ 
+geom_point(fill= "#0f77c7", color = "#0f77c7")
+
+tmdb_amazon <- ggplot(amazon_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "#1399FF", color="#1399FF") 
+compare_score_amazon <- imdb_amazon + tmdb_amazon
+
+combined_imdb_and_tmbd_amazon <- imdb_amazon + geom_point(amazon_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "#1399FF", color="#1399FF")
+
+
+compare_score_amazon
+combined_imdb_and_tmbd_amazon
+
+g <- graph_from_data_frame(d = amazon_scores, directed = FALSE)
+tbl_graph <- as_tbl_graph(g)
+network <- ggraph(tbl_graph, layout = "fr") +
+    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+    geom_node_point(color = "lightblue", size = 5) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    theme_void()
+network  
+
+
+#disney+
 
 ggplot(data = disney_scores, mapping = aes(x=tmdb_score)) +
   geom_histogram(color = "blue") + 
@@ -80,7 +150,30 @@ ggplot(data = disney_scores, mapping = aes(x=tmdb_score)) +
 ggplot(data = disney_scores, mapping = aes(x=imdb_score)) +
 geom_histogram(color = "blue") +
 labs(x = "Disney+ Critic Score")
-# 
+
+
+imdb_disney <- ggplot(hbo_scores, mapping = aes(x=imdb_score, y=release_year))+ 
+geom_point(fill= "darkblue", color = "darkblue")
+
+tmdb_disney <- ggplot(disney_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "blue", color="blue") 
+compare_score_hbo <- imdb_disney + tmdb_disney
+
+combined_imdb_and_tmbd_disney <- imdb_disney + geom_point(disney_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "blue", color="blue")
+
+
+compare_score_disney
+combined_imdb_and_tmbd_disney
+
+g <- graph_from_data_frame(d = disney_scores, directed = FALSE)
+tbl_graph <- as_tbl_graph(g)
+network <- ggraph(tbl_graph, layout = "fr") +
+    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+    geom_node_point(color = "lightblue", size = 5) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    theme_void()
+network  
+
+# games
 ggplot(data = games_scores, mapping = aes(User_Score)) +
   geom_histogram(color = "gold") +
   labs(x = "Video Games User score")
@@ -97,14 +190,23 @@ ggplot(games, mapping = aes(x = Publisher, y= User_Count)) +
 geom_point() + geom_smooth(method = "loess") 
 
 
+critc_score<- ggplot(games_scores, mapping = aes(x=Critic_Score, y=Year_of_Release))+ 
+geom_point(fill= "#7e6c0a", color = "#7e6c0a")
 
-Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
+user_score <- ggplot(games_scores, mapping = aes(x=User_Score, y=Year_of_Release))+ geom_point(fill = "gold", color="gold") 
+compare_score_critic_and_user <- critc_score + user_score
+
+combined_user_and_critic_score <- critc_score + geom_point(games_scores, mapping = aes(x=User_Score, y=Year_of_Release),fill = "gold", color="gold")
+
+
+compare_score_critic_and_user
+combined_user_and_critic_score
+
 
 plot_ly(Total_publisher_count, x = Total_publisher_count$Publisher, y = Total_publisher_count$Total)
-
-most_famous <- Total_publisher_count %>% filter(Total > 20000)
 plot_ly(most_famous, x = most_famous$Publisher, y = most_famous$Total)
-graph_list <- list()
+
+
 for (instance in unique(games_scores$Publisher)) {
   # Filter the data for the current Publisher
   patchworks <- games_scores %>% filter(Publisher == instance)
@@ -113,7 +215,7 @@ for (instance in unique(games_scores$Publisher)) {
   g <- graph_from_data_frame(d = patchworks, directed = FALSE)
   tbl_graph <- as_tbl_graph(g)
   graph <- ggraph(tbl_graph, layout = "fr") +
-    geom_edge_link(aes(width = 1), edge_alpha = 0.5) +
+    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
     geom_node_point(color = "lightblue", size = 5) +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
@@ -121,8 +223,9 @@ for (instance in unique(games_scores$Publisher)) {
   # Store the graph object in the list
   graph_list[[instance]] <- graph
 }
+
+dev.new(width = 1600000, height = 1600000)
 combined_plots <- wrap_plots(graph_list)
-dev.new(width = 32000, height = 3200)
 combined_plots
 ordered_graph_list <- graph_list[order(most_famous$Publisher)]
 combined_ordered_graph_list <- wrap_plots(ordered_graph_list)
