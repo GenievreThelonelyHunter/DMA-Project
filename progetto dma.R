@@ -39,11 +39,6 @@ games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Cou
 
 
 
-Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
-most_famous <- Total_publisher_count %>% filter(Total > 20000)
-
-graph_list <- list()
-
 #plots
 #Netflix
 ggplot(data = netflix_scores, mapping = aes(x=tmdb_score)) 
@@ -202,6 +197,8 @@ combined_user_and_critic_score <- critc_score + geom_point(games_scores, mapping
 compare_score_critic_and_user
 combined_user_and_critic_score
 
+Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
+most_famous <- Total_publisher_count %>% filter(Total > 20000)
 
 plot_ly(Total_publisher_count, x = Total_publisher_count$Publisher, y = Total_publisher_count$Total)
 plot_ly(most_famous, x = most_famous$Publisher, y = most_famous$Total)
@@ -243,14 +240,53 @@ all_scores <- expand.grid(Publisher = unique(games_scores$Publisher), User_Score
 score_frequencies_complete <- all_scores %>%
   left_join(score_frequencies, by = c("Publisher", "User_Score")) %>% drop_na()
 
-# Print the result
-score_frequencies_complete
 
 g <- graph_from_data_frame(d = score_frequencies_complete, directed = FALSE)
   tbl_graph <- as_tbl_graph(g)
   graph <- ggraph(tbl_graph, layout = "kk") +
-    geom_edge_link(aes(width = Frequency), edge_alpha = 0.5) +
+    geom_edge_link(edge_alpha = 0.5) +
     geom_node_point(color = "lightblue", size = 5) +
-    geom_node_text(aes(label = name), repel = TRUE) +
+    geom_node_text(aes(label = name), repel = TRUE, max.overlaps = 300) +
     theme_void()
+graph
+
+
+
+# Calculate score frequencies for all publishers
+score_frequencies_most_famous <- games_scores %>%
+  group_by(Publisher, User_Score) %>%
+  summarise(Frequency = n(), .groups = 'drop')
+
+# Create a complete grid of all publishers from 'most_famous' and scores from 1 to 10 with decimals
+all_scores_most_famous <- expand.grid(
+  Publisher = unique(most_famous$Publisher),
+  User_Score = seq(1, 10, by = 0.1)
+)
+
+# Join the complete grid with the calculated frequencies, filling in missing values with 0
+score_frequencies_complete_most_famous <- all_scores_most_famous %>%
+  left_join(score_frequencies_most_famous, by = c("Publisher", "User_Score")) %>%
+  replace_na(list(Frequency = 0))
+
+# Filter the data to include only publishers in 'most_famous'
+filtered_data <- score_frequencies_complete_most_famous %>%
+  filter(Publisher %in% most_famous$Publisher)
+
+# Create a graph from the filtered data frame
+g <- graph_from_data_frame(d = filtered_data, directed = FALSE)
+
+# Convert to tbl_graph for ggraph
+tbl_graph <- as_tbl_graph(g)
+
+
+
+# Create a visual representation of the graph
+graph <- ggraph(tbl_graph, layout = "kk") +
+  geom_edge_link(edge_alpha = 0.5) +
+  geom_node_point(color = "lightblue", size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  coord_flip() +
+  theme_void()
+
+# Plot the graph
 graph
