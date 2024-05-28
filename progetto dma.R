@@ -207,27 +207,50 @@ plot_ly(Total_publisher_count, x = Total_publisher_count$Publisher, y = Total_pu
 plot_ly(most_famous, x = most_famous$Publisher, y = most_famous$Total)
 
 
-for (instance in unique(games_scores$Publisher)) {
+#for (instance in unique(games_scores$Publisher)) {
   # Filter the data for the current Publisher
-  patchworks <- games_scores %>% filter(Publisher == instance)
+ # patchworks <- games_scores %>% filter(Publisher == instance)
   
   # Create the graph for the current Publisher
-  g <- graph_from_data_frame(d = patchworks, directed = FALSE)
+  #g <- graph_from_data_frame(d = patchworks, directed = FALSE)
+  #tbl_graph <- as_tbl_graph(g)
+  #graph <- ggraph(tbl_graph, layout = "fr") +
+   # geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+    #geom_node_point(color = "lightblue", size = 5) +
+    #geom_node_text(aes(label = name), repel = TRUE) +
+    #theme_void()
+  
+  # Store the graph object in the list
+  #graph_list[[instance]] <- graph
+#}
+
+#dev.new(width = 1600000, height = 1600000)
+#combined_plots <- wrap_plots(graph_list)
+#combined_plots
+#ordered_graph_list <- graph_list[order(most_famous$Publisher)]
+#combined_ordered_graph_list <- wrap_plots(ordered_graph_list)
+#combined_ordered_graph_list
+
+# Group by Publisher and Score, and count the frequencies
+score_frequencies <- games_scores %>%
+  group_by(Publisher, User_Score) %>%
+  summarise(Frequency = n(), .groups = 'drop')
+
+# Create a complete grid of all publishers and scores from 1 to 10 with decimals
+all_scores <- expand.grid(Publisher = unique(games_scores$Publisher), User_Score = seq(1, 10, by = 0.1))
+
+# Join the complete grid with the calculated frequencies, filling in missing values with 0
+score_frequencies_complete <- all_scores %>%
+  left_join(score_frequencies, by = c("Publisher", "User_Score")) %>% drop_na()
+
+# Print the result
+score_frequencies_complete
+
+g <- graph_from_data_frame(d = score_frequencies_complete, directed = FALSE)
   tbl_graph <- as_tbl_graph(g)
-  graph <- ggraph(tbl_graph, layout = "fr") +
-    geom_edge_link(aes(width =0.5), edge_alpha = 0.5) +
+  graph <- ggraph(tbl_graph, layout = "kk") +
+    geom_edge_link(aes(width = Frequency), edge_alpha = 0.5) +
     geom_node_point(color = "lightblue", size = 5) +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
-  
-  # Store the graph object in the list
-  graph_list[[instance]] <- graph
-}
-
-dev.new(width = 1600000, height = 1600000)
-combined_plots <- wrap_plots(graph_list)
-combined_plots
-ordered_graph_list <- graph_list[order(most_famous$Publisher)]
-combined_ordered_graph_list <- wrap_plots(ordered_graph_list)
-combined_ordered_graph_list
-
+graph
