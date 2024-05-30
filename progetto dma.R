@@ -37,7 +37,12 @@ disney_scores <- disney%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_po
 games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Count,Year_of_Release,Publisher) %>% arrange(Year_of_Release) %>% mutate (Critic_Score = rescale_to_1_10(Critic_Score)) %>% mutate(User_Score = as.numeric(as.character(User_Score)))
 
 
-
+#variance
+sqrt(var(x = netflix_scores$imdb_score, y = netflix_scores$tmdb_score))
+sqrt(var(x = hbo_scores$imdb_score, y = hbo_scores$tmdb_score))
+sqrt(var(x = amazon_scores$imdb_score, y = amazon_scores$tmdb_score))
+sqrt(var(x = disney_scores$imdb_score, y = disney_scores$tmdb_score))
+sqrt(var(x = games_scores$Critic_Score, y = games_scores$User_Score))
 
 #plots
 #Netflix
@@ -59,12 +64,17 @@ geom_point(fill= "darkred", color = "darkred") + labs(x = "Netflix Critic scores
 tmdb_netflix <- ggplot(netflix_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "red", color="red") + labs(x = "Netflix User scores", y ="Year of Release")
 compare_score_netflix <- imdb_netflix + tmdb_netflix 
 
+
+ggsave( "Netflix Compare Score.png")
 combined_imdb_and_tmbd_netflix <- imdb_netflix + geom_point(netflix_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "red", color="red") + labs(x = "combined scores", y ="Year of Release")
+combined_imdb_and_tmbd_netflix <- combined_imdb_and_tmbd_netflix
 
-ggsave(compare_score_netflix, "Netflix Compare Score.png")
-ggsave(combined_imdb_and_tmbd_netflix, "Netflix Combined Scores.png")
+ggsave("Netflix Combined Scores.png")
 
 
+
+ggplot(netflix_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "red", color= "red") + geom_smooth(method = "lm") 
+ggsave("Netflix Scores with regression.png")
 netflix_user_scores <- netflix_scores %>% select(title, tmdb_score, tmdb_popularity)
 netflix_crit_scores <- netflix_scores %>% select(title, imdb_score, tmdb_popularity)
 
@@ -77,7 +87,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Network Netflix User Score")
+ggsave( "Network Netflix User Score.png")
 
 g <- graph_from_data_frame(d = netflix_crit_scores, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
@@ -87,7 +97,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Network Netflix User Score")
+ggsave( "Network Netflix User Score.png")
 plot_ly(netflix_scores, x= netflix_scores$title, y = netflix_scores$tmdb_popularity, color = I("red"))
 
 #HBO
@@ -104,11 +114,13 @@ geom_point(fill= "#5c1588", color = "#5c1588") +labs(x = "HBO Critic scores", y 
 
 tmdb_hbo <- ggplot(hbo_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "purple", color="purple") + labs(x = "HBO User scores", y ="Year of Release")
 compare_score_hbo <- imdb_hbo + tmdb_hbo
-
+ggsave( "HBO Compared score.png")
 combined_imdb_and_tmbd_hbo <- imdb_hbo + geom_point(hbo_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "purple", color="purple") + labs(x = "combined scores", y ="Year of Release")
 
-ggsave(compare_score_hbo, "HBO Compared score.png")
-ggsave(combined_imdb_and_tmbd_hbo, "HBO combined scores.png")
+
+ggsave( "HBO combined scores.png")
+ggplot(hbo_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "purple", color= "purple") + geom_smooth(method = "lm") 
+ggsave("HBO Scores with regression.png")
 
 hbo_user_scores <- hbo_scores %>% select(title, tmdb_score, tmdb_popularity)
 hbo_crit_scores <- hbo_scores %>% select(title, imdb_score, tmdb_popularity)
@@ -122,7 +134,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "HBO User Network.png")
+ggsave("HBO User Network.png")
 g <- graph_from_data_frame(d = hbo_crit_scores, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
 network <- ggraph(tbl_graph, layout = "fr") +
@@ -132,7 +144,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     theme_void()
   
 
-ggsave(network, "HBO Critic Network.png")
+ggsave( "HBO Critic Network.png")
 plot_ly(hbo_scores, x = hbo_scores$title, y = hbo_scores$tmdb_popularity, color = I("purple"))
 #amazon prime video
 ggplot(data = amazon_scores, mapping = aes(x=tmdb_score)) +
@@ -151,12 +163,15 @@ geom_point(fill= "#0f77c7", color = "#0f77c7") + labs(x = "Amazon Critic scores"
 
 tmdb_amazon <- ggplot(amazon_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "#1399FF", color="#1399FF")  + labs(x = "Amazon User scores", y ="Year of Release")
 compare_score_amazon <- imdb_amazon + tmdb_amazon
-
+ggsave( "Amazon Comparing Score.png")
 combined_imdb_and_tmbd_amazon <- imdb_amazon + geom_point(amazon_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "#1399FF", color="#1399FF") + labs(x = "combined scores", y ="Year of Release")
 
 
-ggsave(compare_score_amazon, "Amazon Comparing Score")
-ggsave(combined_imdb_and_tmbd_amazon,"Amazon Combined Score")
+
+ggsave("Amazon Combined Score.png")
+
+ggplot(amazon_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "#1399FF", color= "#1399FF") + geom_smooth(method = "lm") 
+ggsave("Amazon Scores with regression.png")
 amazon_user_scores <- amazon_scores %>% select(title, tmdb_score, tmdb_popularity)
 amazon_crit_scores <- amazon_scores %>% select(title, imdb_score, tmdb_popularity)
 
@@ -169,7 +184,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Amazon User Network.png")
+ggsave( "Amazon User Network.png")
 g <- graph_from_data_frame(d = amazon_crit_scores, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
 network <- ggraph(tbl_graph, layout = "fr") +
@@ -178,7 +193,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Amazon Critic Network.png")
+ggsave( "Amazon Critic Network.png")
 
 plot_ly(amazon_scores, x = amazon_scores$title, y = amazon_scores$tmdb_popularity, color = I("#1399FF"))
 
@@ -199,13 +214,16 @@ geom_point(fill= "darkblue", color = "darkblue")  + labs(x = "Disney Critic scor
 
 tmdb_disney <- ggplot(disney_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "blue", color="blue")  + labs(x = "Disney User scores", y ="Year of Release")
 compare_score_hbo <- imdb_disney + tmdb_disney
+ggsave( "Disney compare score.png")
 
 combined_imdb_and_tmbd_disney <- imdb_disney + geom_point(disney_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "blue", color="blue") + labs(x = "combined scores", y ="Year of Release")
 
 
-ggsave(compare_score_disney, "Disney compare score.png")
-ggsave(combined_imdb_and_tmbd_disney, "Disney Combined Score.png")
-names(disney_scores)
+
+ggsave( "Disney Combined Score.png")
+
+ggplot(disney_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "blue", color= "blue") + geom_smooth(method = "lm") 
+ggsave("Disney+ Scores with regression.png")
 disney_user_scores <- disney_scores %>% select(title, tmdb_score, tmdb_popularity)
 disney_crit_scores <- disney_scores %>% select(title, imdb_score, tmdb_popularity)
 
@@ -218,7 +236,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Disney User Network.png")
+ggsave( "Disney User Network.png")
 
 g <- graph_from_data_frame(d = disney_crit_scores, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
@@ -228,7 +246,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave(network, "Disney Critic Network.png")
+ggsave( "Disney Critic Network.png")
 
 plot_ly(disney_scores, x= disney_scores$title, y = disney_scores$tmdb_popularity, color = I("blue"))
 # games
@@ -249,14 +267,15 @@ geom_point(fill= "#7e6c0a", color = "#7e6c0a")  + labs(x = "Videogames Critic sc
 user_score <- ggplot(games_scores, mapping = aes(x=User_Score, y=Year_of_Release))+ geom_point(fill = "gold", color="gold") + labs(x = "Videogames User scores", y ="Year of Release")
 compare_score_critic_and_user <- critc_score + user_score
 
+ggsave("Videogames Comparing Score.png")
 combined_user_and_critic_score <- critc_score + geom_point(games_scores, mapping = aes(x=User_Score, y=Year_of_Release),fill = "gold", color="gold") + labs(x = "Combined scores", y ="Year of Release")
 
-ggsave(compare_score_critic_and_user, "Videogames Comparing Score.png")
-ggsave(combined_user_and_critic_score, "Videogames Combined Score.png")
+
+ggsave( "Videogames Combined Score.png")
 
 Total_publisher_count <- games_scores %>% group_by(Publisher)%>% summarise(Total = sum(User_Count)) 
 most_famous <- Total_publisher_count %>% filter(Total > 20000)
-
+ 
 plot_ly(Total_publisher_count, x = Total_publisher_count$Publisher, y = Total_publisher_count$Total, color = I("gold"))
 plot_ly(most_famous, x = most_famous$Publisher, y = most_famous$Total, color = I("gold"))
 
@@ -281,7 +300,7 @@ g <- graph_from_data_frame(d = score_frequencies_complete, directed = FALSE)
     geom_node_text(aes(label = name), repel = TRUE, max.overlaps = 300) +
     theme_void()
 
-ggsave(graph, "Complete Video Games User Score.png")
+ggsave("Complete Video Games User Score.png")
 
 
 # Calculate score frequencies for all publishers
@@ -321,7 +340,7 @@ graph <- ggraph(tbl_graph, layout = "fr") +
 
 # Plot the graph
 
-ggsave(graph, "Most Famous Video Games User Score.png")
+ggsave( "Most Famous Video Games User Score.png")
 
 # Group by Publisher and Score, and count the frequencies
 score_frequencies <- games_scores %>%
@@ -344,7 +363,7 @@ g <- graph_from_data_frame(d = score_frequencies_complete, directed = FALSE)
     geom_node_text(aes(label = name), repel = TRUE, max.overlaps = 300) +
     theme_void()
 
-ggsave(graph, "Complete Video Games Critic Score.png")
+ggsave("Complete Video Games Critic Score.png")
 
 
 # Calculate score frequencies for all publishers
@@ -381,7 +400,4 @@ graph <- ggraph(tbl_graph, layout = "fr") +
   geom_node_point(color = "#7e6c0a", size = 20) +
   geom_node_text(aes(label = name), position = "identity",repel = TRUE) +
   theme_void()
-
-# Plot the graph
-
-ggsave(graph, "Most Famous Video Games Critic Score.png")
+ggsave( "Most Famous Video Games Critic Score.png")
