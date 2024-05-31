@@ -37,7 +37,7 @@ disney_scores <- disney%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_po
 games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Count,Year_of_Release,Publisher) %>% arrange(Year_of_Release) %>% mutate (Critic_Score = rescale_to_1_10(Critic_Score)) %>% mutate(User_Score = as.numeric(as.character(User_Score)))
 
 
-#variance
+#standard deviation
 sqrt(var(x = netflix_scores$imdb_score, y = netflix_scores$tmdb_score))
 sqrt(var(x = hbo_scores$imdb_score, y = hbo_scores$tmdb_score))
 sqrt(var(x = amazon_scores$imdb_score, y = amazon_scores$tmdb_score))
@@ -73,7 +73,7 @@ ggsave("Netflix Combined Scores.png")
 
 
 
-ggplot(netflix_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "red", color= "red") + geom_smooth(method = "lm") 
+ggplot(netflix_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "red", color= "red") + geom_smooth(method = "lm") + labs(x = "Critic Score", y = "User Score")
 ggsave("Netflix Scores with regression.png")
 netflix_user_scores <- netflix_scores %>% select(title, tmdb_score, tmdb_popularity)
 netflix_crit_scores <- netflix_scores %>% select(title, imdb_score, tmdb_popularity)
@@ -119,7 +119,7 @@ combined_imdb_and_tmbd_hbo <- imdb_hbo + geom_point(hbo_scores, mapping = aes(x=
 
 
 ggsave( "HBO combined scores.png")
-ggplot(hbo_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "purple", color= "purple") + geom_smooth(method = "lm") 
+ggplot(hbo_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "purple", color= "purple") + geom_smooth(method = "lm") + labs(x = "Critic Score", y = "User Score")
 ggsave("HBO Scores with regression.png")
 
 hbo_user_scores <- hbo_scores %>% select(title, tmdb_score, tmdb_popularity)
@@ -170,7 +170,7 @@ combined_imdb_and_tmbd_amazon <- imdb_amazon + geom_point(amazon_scores, mapping
 
 ggsave("Amazon Combined Score.png")
 
-ggplot(amazon_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "#1399FF", color= "#1399FF") + geom_smooth(method = "lm") 
+ggplot(amazon_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "#1399FF", color= "#1399FF") + geom_smooth(method = "lm") + labs(x = "Critic Score", y = "User Score")
 ggsave("Amazon Scores with regression.png")
 amazon_user_scores <- amazon_scores %>% select(title, tmdb_score, tmdb_popularity)
 amazon_crit_scores <- amazon_scores %>% select(title, imdb_score, tmdb_popularity)
@@ -222,7 +222,7 @@ combined_imdb_and_tmbd_disney <- imdb_disney + geom_point(disney_scores, mapping
 
 ggsave( "Disney Combined Score.png")
 
-ggplot(disney_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "blue", color= "blue") + geom_smooth(method = "lm") 
+ggplot(disney_scores, mapping = aes(x = imdb_score, y= tmdb_score)) + geom_point(fill = "blue", color= "blue") + geom_smooth(method = "lm") + labs(x = "Critic Score", y = "User Score") 
 ggsave("Disney+ Scores with regression.png")
 disney_user_scores <- disney_scores %>% select(title, tmdb_score, tmdb_popularity)
 disney_crit_scores <- disney_scores %>% select(title, imdb_score, tmdb_popularity)
