@@ -7,7 +7,7 @@ library(patchwork)
 library(plotly)    
 library(ggraph)
 library(tidygraph)
-
+library(reticulate)
 #functions
 rescale_to_1_10 <- function(x) {
   # Normalize the values to a 0-1 range
@@ -16,7 +16,8 @@ rescale_to_1_10 <- function(x) {
   return(scaled)
 }
 
-
+#use_python("C:/Users/Alessandro Caminiti/AppData/Local/Programs/Python/Python312/python.exe", required = T)
+#py_install(c("kaleido", "plotly"))
 #variables
 
 netflix <- read.csv("per il progetto di dma/Netflix.csv")
@@ -43,6 +44,108 @@ sqrt(var(x = hbo_scores$imdb_score, y = hbo_scores$tmdb_score))
 sqrt(var(x = amazon_scores$imdb_score, y = amazon_scores$tmdb_score))
 sqrt(var(x = disney_scores$imdb_score, y = disney_scores$tmdb_score))
 sqrt(var(x = games_scores$Critic_Score, y = games_scores$User_Score))
+#plotly plotsy
+
+ordered_score <- disney_scores %>% arrange(tmdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~tmdb_score,type = "bar", marker = list(
+    color = ~tmdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Disney TMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "User Score")
+)
+ordered_score <- netflix_scores %>% arrange(tmdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~tmdb_score,type = "bar", marker = list(
+    color = ~tmdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Netflix TMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "User Score")
+)
+
+  
+ordered_score <- amazon_scores %>% arrange(tmdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~tmdb_score,type = "bar", marker = list(
+    color = ~tmdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Amazon TMDB Score')  # Optional: Adds a colorbar legend
+  )) %>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "User Score")
+)
+
+ordered_score <- hbo_scores %>% arrange(tmdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~tmdb_score,type = "bar", marker = list(
+    color = ~tmdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'HBO TMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "User Score")
+)
+
+ordered_score <- games_scores %>% arrange(User_Score)
+ plot_ly(ordered_score, x= ~Year_of_Release, y = ~User_Score,type = "bar", marker = list(
+    color = ~User_Score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Videogames User Score')  # Optional: Adds a colorbar legend
+))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "User Score")
+)
+
+###################################################################################
+
+ordered_score <- disney_scores %>% arrange(imdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~imdb_score,type = "bar", marker = list(
+    color = ~imdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Disney IMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "Critic Score")
+)
+ordered_score <- netflix_scores %>% arrange(imdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~imdb_score,type = "bar", marker = list(
+    color = ~imdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Netflix IMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "Critic Score")
+)
+  
+ordered_score <- amazon_scores %>% arrange(imdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~imdb_score,type = "bar", marker = list(
+    color = ~imdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Amazon IMDB Score')  # Optional: Adds a colorbar legend
+  )) %>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "Critic Score")
+)
+
+ordered_score <- hbo_scores %>% arrange(imdb_score)
+plot_ly(ordered_score, x= ~release_year, y = ~imdb_score,type = "bar", marker = list(
+    color = ~imdb_score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'HBO IMDB Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "Critic Score")
+)
+
+ordered_score <- games_scores %>% arrange(Critic_Score)
+ plot_ly(ordered_score, x= ~Year_of_Release, y = ~Critic_Score,type = "bar", marker = list(
+    color = ~Critic_Score,
+    colorscale = 'Rainbow',  # Predefined colorscale in Plotly
+    colorbar = list(title = 'Video Games Critic Score')  # Optional: Adds a colorbar legend
+  ))%>% layout(
+  xaxis = list(title = "Year of Release"),
+  yaxis = list(title = "Critic Score")
+)
 
 #plots
 #Netflix
@@ -58,15 +161,15 @@ labs(x="netflix Critic score")
 
 ggsave("Netflix Critic Score.png")
 
-imdb_netflix <- ggplot(netflix_scores, mapping = aes(x=imdb_score, y=release_year))+ 
-geom_point(fill= "darkred", color = "darkred") + labs(x = "Netflix Critic scores", y ="Year of Release")
+imdb_netflix <- ggplot(netflix_scores, mapping = aes(y=imdb_score, x=release_year))+ 
+geom_point(fill= "darkred", color = "darkred") + labs(y = "Netflix Critic scores", x ="Year of Release")
 
-tmdb_netflix <- ggplot(netflix_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "red", color="red") + labs(x = "Netflix User scores", y ="Year of Release")
+tmdb_netflix <- ggplot(netflix_scores, mapping = aes(y=tmdb_score, x=release_year))+ geom_point(fill = "red", color="red") + labs(y = "Netflix User scores", x ="Year of Release")
 compare_score_netflix <- imdb_netflix + tmdb_netflix 
 
 
 ggsave( "Netflix Compare Score.png")
-combined_imdb_and_tmbd_netflix <- imdb_netflix + geom_point(netflix_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "red", color="red") + labs(x = "combined scores", y ="Year of Release")
+combined_imdb_and_tmbd_netflix <- imdb_netflix + geom_point(netflix_scores, mapping = aes(y=tmdb_score, x=release_year),fill = "red", color="red") + labs(y = "combined scores", x ="Year of Release")
 combined_imdb_and_tmbd_netflix <- combined_imdb_and_tmbd_netflix
 
 ggsave("Netflix Combined Scores.png")
@@ -109,13 +212,13 @@ ggplot(data = hbo_scores, mapping = aes(x=imdb_score)) +
 geom_boxplot(color = "purple") + labs(x = "HBO Critic Score")
 ggsave("HBO Critic score.png")
 
-imdb_hbo <- ggplot(hbo_scores, mapping = aes(x=imdb_score, y=release_year))+ 
-geom_point(fill= "#5c1588", color = "#5c1588") +labs(x = "HBO Critic scores", y ="Year of Release")
+imdb_hbo <- ggplot(hbo_scores, mapping = aes(y=imdb_score, x=release_year))+ 
+geom_point(fill= "#5c1588", color = "#5c1588") +labs(y = "HBO Critic scores", x ="Year of Release")
 
-tmdb_hbo <- ggplot(hbo_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "purple", color="purple") + labs(x = "HBO User scores", y ="Year of Release")
+tmdb_hbo <- ggplot(hbo_scores, mapping = aes(y=tmdb_score, x=release_year))+ geom_point(fill = "purple", color="purple") + labs(y = "HBO User scores", x ="Year of Release")
 compare_score_hbo <- imdb_hbo + tmdb_hbo
 ggsave( "HBO Compared score.png")
-combined_imdb_and_tmbd_hbo <- imdb_hbo + geom_point(hbo_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "purple", color="purple") + labs(x = "combined scores", y ="Year of Release")
+combined_imdb_and_tmbd_hbo <- imdb_hbo + geom_point(hbo_scores, mapping = aes(y=tmdb_score, x=release_year),fill = "purple", color="purple") + labs(y = "combined scores", x ="Year of Release")
 
 
 ggsave( "HBO combined scores.png")
@@ -158,13 +261,13 @@ labs(x = "Amazon Prime Video Critic Score")
 ggsave("Amazon Prime Critic Score.png")
 
 
-imdb_amazon <- ggplot(amazon_scores, mapping = aes(x=imdb_score, y=release_year))+ 
-geom_point(fill= "#0f77c7", color = "#0f77c7") + labs(x = "Amazon Critic scores", y ="Year of Release")
+imdb_amazon <- ggplot(amazon_scores, mapping = aes(y=imdb_score, x=release_year))+ 
+geom_point(fill= "#0f77c7", color = "#0f77c7") + labs(y = "Amazon Critic scores", x ="Year of Release")
 
-tmdb_amazon <- ggplot(amazon_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "#1399FF", color="#1399FF")  + labs(x = "Amazon User scores", y ="Year of Release")
+tmdb_amazon <- ggplot(amazon_scores, mapping = aes(y=tmdb_score, x=release_year))+ geom_point(fill = "#1399FF", color="#1399FF")  + labs(y = "Amazon User scores", x ="Year of Release")
 compare_score_amazon <- imdb_amazon + tmdb_amazon
 ggsave( "Amazon Comparing Score.png")
-combined_imdb_and_tmbd_amazon <- imdb_amazon + geom_point(amazon_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "#1399FF", color="#1399FF") + labs(x = "combined scores", y ="Year of Release")
+combined_imdb_and_tmbd_amazon <- imdb_amazon + geom_point(amazon_scores, mapping = aes(y=tmdb_score, x=release_year),fill = "#1399FF", color="#1399FF") + labs(y = "combined scores", x ="Year of Release")
 
 
 
@@ -209,14 +312,14 @@ geom_boxplot(color = "blue") +
 labs(x = "Disney+ Critic Score")
 ggsave("Disney+ Critic Score.png")
 
-imdb_disney <- ggplot(hbo_scores, mapping = aes(x=imdb_score, y=release_year))+ 
+imdb_disney <- ggplot(hbo_scores, mapping = aes(y=imdb_score, x=release_year))+ 
 geom_point(fill= "darkblue", color = "darkblue")  + labs(x = "Disney Critic scores", y ="Year of Release")
 
-tmdb_disney <- ggplot(disney_scores, mapping = aes(x=tmdb_score, y=release_year))+ geom_point(fill = "blue", color="blue")  + labs(x = "Disney User scores", y ="Year of Release")
+tmdb_disney <- ggplot(disney_scores, mapping = aes(y=tmdb_score, x=release_year))+ geom_point(fill = "blue", color="blue")  + labs(y = "Disney User scores", x ="Year of Release")
 compare_score_hbo <- imdb_disney + tmdb_disney
 ggsave( "Disney compare score.png")
 
-combined_imdb_and_tmbd_disney <- imdb_disney + geom_point(disney_scores, mapping = aes(x=tmdb_score, y=release_year),fill = "blue", color="blue") + labs(x = "combined scores", y ="Year of Release")
+combined_imdb_and_tmbd_disney <- imdb_disney + geom_point(disney_scores, mapping = aes(y=tmdb_score, x=release_year),fill = "blue", color="blue") + labs(y = "combined scores", x ="Year of Release")
 
 
 
@@ -247,8 +350,12 @@ network <- ggraph(tbl_graph, layout = "fr") +
     theme_void()
   
 ggsave( "Disney Critic Network.png")
-
+ordered_score <- disney_scores %>% arrange(tmdb_score)
 plot_ly(disney_scores, x= disney_scores$title, y = disney_scores$tmdb_popularity, color = I("blue"))
+
+
+
+
 # games
 ggplot(data = games_scores, mapping = aes(User_Score)) +
   geom_boxplot(color = "gold") +
@@ -261,14 +368,14 @@ labs(x = "Video Games Critic Score")
 ggsave("Videogames Critic Score.png")
 
 
-critc_score<- ggplot(games_scores, mapping = aes(x=Critic_Score, y=Year_of_Release))+ 
-geom_point(fill= "#7e6c0a", color = "#7e6c0a")  + labs(x = "Videogames Critic scores", y ="Year of Release")
+critc_score<- ggplot(games_scores, mapping = aes(y=Critic_Score, x=Year_of_Release))+ 
+geom_point(fill= "#7e6c0a", color = "#7e6c0a")  + labs(y = "Videogames Critic scores", x ="Year of Release")
 
-user_score <- ggplot(games_scores, mapping = aes(x=User_Score, y=Year_of_Release))+ geom_point(fill = "gold", color="gold") + labs(x = "Videogames User scores", y ="Year of Release")
+user_score <- ggplot(games_scores, mapping = aes(y=User_Score, x=Year_of_Release))+ geom_point(fill = "gold", color="gold") + labs(y = "Videogames User scores", x ="Year of Release")
 compare_score_critic_and_user <- critc_score + user_score
 
 ggsave("Videogames Comparing Score.png")
-combined_user_and_critic_score <- critc_score + geom_point(games_scores, mapping = aes(x=User_Score, y=Year_of_Release),fill = "gold", color="gold") + labs(x = "Combined scores", y ="Year of Release")
+combined_user_and_critic_score <- critc_score + geom_point(games_scores, mapping = aes(y=User_Score, x=Year_of_Release),fill = "gold", color="gold") + labs(y = "combined scores", x ="Year of Release")
 
 
 ggsave( "Videogames Combined Score.png")
