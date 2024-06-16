@@ -38,7 +38,20 @@ disney_scores <- disney%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_po
 games_scores <- games%>%drop_na()%>%select(Name,Critic_Score,User_Score,User_Count,Year_of_Release,Publisher) %>% arrange(Year_of_Release) %>% mutate (Critic_Score = rescale_to_1_10(Critic_Score)) %>% mutate(User_Score = as.numeric(as.character(User_Score)))
 
 
-#standard deviation
+############################################
+#popularity
+sum_netflix <- netflix_scores %>% summarise(Popularity= sum(tmdb_popularity)) 
+sum_hbo <- hbo_scores %>% summarise(Popularity = sum(tmdb_popularity)) 
+sum_amazon <- amazon_scores %>% summarise(Popularity = sum(tmdb_popularity)) 
+sum_disney <- disney_scores %>% summarise(Popularity = sum(tmdb_popularity)) 
+
+?as.data.frame
+a <- as.data.frame(c(sum_netflix$Popularity, sum_hbo$Popularity, sum_amazon$Popularity, sum_disney$Popularity))
+
+colnames(a) <- "Popularity"
+plot_ly(a, y = ~Popularity, type="bar", text = c("Netflix", "HBO", "Amazon prime video", "Disney+"))
+
+#standard  deviation
 sqrt(var(x = netflix_scores$imdb_score, y = netflix_scores$tmdb_score))
 sqrt(var(x = hbo_scores$imdb_score, y = hbo_scores$tmdb_score))
 sqrt(var(x = amazon_scores$imdb_score, y = amazon_scores$tmdb_score))
