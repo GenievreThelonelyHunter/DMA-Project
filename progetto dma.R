@@ -8,6 +8,7 @@ library(plotly)
 library(ggraph)
 library(tidygraph)
 library(reticulate)
+library(ggstatsplot)
 #functions
 rescale_to_1_10 <- function(x) {
   # Normalize the values to a 0-1 range
@@ -25,7 +26,6 @@ amazon_prime <- read.csv("per il progetto di dma/Amazon Prime.csv")
 hbo<-read.csv("per il progetto di dma/HBO.csv")
 disney<-read.csv("per il progetto di dma/Disney+.csv")
 games<-read.csv("per il progetto di dma/Video_Games.csv")
-
 
 netflix_scores <- netflix%>%drop_na()%>%select(title,imdb_score,tmdb_score,tmdb_popularity,release_year) %>% arrange(release_year)
 
@@ -108,9 +108,124 @@ ordered_score <- games_scores %>% arrange(User_Score)
   xaxis = list(title = "Year of Release"),
   yaxis = list(title = "User Score")
 )
-
 ###################################################################################
+cor(netflix_scores$imdb_score, netflix_scores$tmdb_score)
+cor(hbo_scores$imdb_score, hbo_scores$tmdb_score)
+cor(amazon_scores$imdb_score, amazon_scores$tmdb_score)
+cor(disney_scores$imdb_score, disney_scores$tmdb_score)
 
+
+
+cor(netflix_scores$tmdb_popularity, netflix_scores$tmdb_score)
+cor(hbo_scores$tmdb_popularity, hbo_scores$tmdb_score)
+cor(amazon_scores$tmdb_popularity, amazon_scores$tmdb_score)
+cor(disney_scores$tmdb_popularity, disney_scores$tmdb_score)
+
+cor(netflix_scores$tmdb_popularity, netflix_scores$imdb_score)
+cor(hbo_scores$tmdb_popularity, hbo_scores$imdb_score)
+cor(amazon_scores$tmdb_popularity, amazon_scores$imdb_score)
+cor(disney_scores$tmdb_popularity, disney_scores$imdb_score)
+###################################################################################
+#ggplot(netflix_scores, mapping= aes(x=imdb_score, y= tmdb_popularity)) + geom_point() + geom_smooth(method = "lm")
+model <- lm(netflix_scores$tmdb_popularity ~ netflix_scores$imdb_score)
+clone <- netflix_scores %>%
+  mutate(predicted = predict(model, newdata = netflix_scores))
+
+p<- plot_ly(clone, x = ~imdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "Critic Score"),
+  yaxis = list(title = "Popularity")
+)
+
+p <- p %>% add_trace(x = ~imdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(hbo_scores$tmdb_popularity ~ hbo_scores$imdb_score)
+clone <- hbo_scores %>%
+  mutate(predicted = predict(model, newdata = hbo_scores))
+
+p<- plot_ly(clone, x = ~imdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+   xaxis = list(title = "Critic Score"),
+  yaxis = list(title = "Popularity")
+)
+
+p <- p %>% add_trace(x = ~imdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(amazon_scores$tmdb_popularity ~ amazon_scores$imdb_score)
+clone <- amazon_scores %>%
+  mutate(predicted = predict(model, newdata = amazon_scores))
+
+p<- plot_ly(clone, x = ~imdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "Critic Score"),
+  yaxis = list(title = "Popularity")
+)
+
+p <- p %>% add_trace(x = ~imdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(disney_scores$tmdb_popularity ~ disney_scores$imdb_score)
+clone <- disney_scores %>%
+  mutate(predicted = predict(model, newdata = disney_scores))
+
+p<- plot_ly(clone, x = ~imdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "Critic Score"),
+  yaxis = list(title = "Popularity")
+)
+p <- p %>% add_trace(x = ~imdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+
+
+model <- lm(netflix_scores$tmdb_popularity ~ netflix_scores$tmdb_score)
+clone <- netflix_scores %>%
+  mutate(predicted = predict(model, newdata = netflix_scores))
+
+p<- plot_ly(clone, x = ~tmdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "User Score"),
+  yaxis = list(title = "Popularity")
+)
+
+p <- p %>% add_trace(x = ~tmdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(hbo_scores$tmdb_popularity ~ hbo_scores$tmdb_score)
+clone <- hbo_scores %>%
+  mutate(predicted = predict(model, newdata = hbo_scores))
+
+p<- plot_ly(clone, x = ~tmdb_score, y = ~tmdb_popularity, type = "scatter") %>% layout(
+  xaxis = list(title = "User Score"),
+  yaxis = list(title = "Popularity")
+)
+
+p <- p %>% add_trace(x = ~tmdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(amazon_scores$tmdb_popularity ~ amazon_scores$tmdb_score)
+clone <- amazon_scores %>%
+  mutate(predicted = predict(model, newdata = amazon_scores))
+
+p<- plot_ly(clone, x = ~tmdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "User Score"),
+  yaxis = list(title = "Popularity")
+)
+
+
+p <- p %>% add_trace(x = ~tmdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+
+model <- lm(disney_scores$tmdb_popularity ~ disney_scores$tmdb_score)
+clone <- disney_scores %>%
+  mutate(predicted = predict(model, newdata = disney_scores))
+
+p<- plot_ly(clone, x = ~tmdb_score, y = ~tmdb_popularity, type = "scatter")%>% layout(
+  xaxis = list(title = "User Score"),
+  yaxis = list(title = "Popularity")
+)
+
+
+p <- p %>% add_trace(x = ~tmdb_score, y = ~predicted, mode = 'lines', name = 'Linear Fit')
+p
+###################################################################################
 ordered_score <- disney_scores %>% arrange(imdb_score)
 plot_ly(ordered_score, x= ~release_year, y = ~imdb_score,type = "bar", marker = list(
     color = ~imdb_score,
@@ -205,6 +320,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
   
 ggsave( "Network Netflix User Score.png")
 
+
 g <- graph_from_data_frame(d = netflix_crit_scores, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
 network <- ggraph(tbl_graph, layout = "fr") +
@@ -213,7 +329,7 @@ network <- ggraph(tbl_graph, layout = "fr") +
     geom_node_text(aes(label = name), repel = TRUE) +
     theme_void()
   
-ggsave( "Network Netflix User Score.png")
+ggsave( "Network Netflix Critic Score.png")
 plot_ly(netflix_scores, x= netflix_scores$title, y = netflix_scores$tmdb_popularity, color = I("red"))
 
 #HBO
@@ -449,7 +565,7 @@ g <- graph_from_data_frame(d = filtered_data, directed = FALSE)
 tbl_graph <- as_tbl_graph(g)
 
 
-
+plot(tbl_graph, vertex.label=NA, vertex.size=7, layout=layout_as_bipartite)
 
 # Create a visual representation of the graph
 graph <- ggraph(tbl_graph, layout = "fr") +
